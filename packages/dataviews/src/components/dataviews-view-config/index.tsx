@@ -535,17 +535,18 @@ function MediaFieldItem( {
 			isInteracting={ isChangingPreview }
 			additionalActions={
 				isVisible && (
-					<Menu
-						trigger={
-							<Button
-								size="compact"
-								icon={ moreVertical }
-								label={ __( 'Preview' ) }
-							/>
-						}
-						onOpenChange={ setIsChangingPreview }
-					>
-						{ mediaFields.map( ( field ) => {
+					<Menu onOpenChange={ setIsChangingPreview }>
+						<Menu.TriggerButton
+							render={
+								<Button
+									size="compact"
+									icon={ moreVertical }
+									label={ __( 'Preview' ) }
+								/>
+							}
+						/>
+						<Menu.Popover>
+							{ mediaFields.map( ( field ) => {
 							return (
 								<Menu.RadioItem
 									key={ field.id }
@@ -563,7 +564,8 @@ function MediaFieldItem( {
 									</Menu.ItemLabel>
 								</Menu.RadioItem>
 							);
-						} ) }
+							} ) }
+						</Menu.Popover>
 					</Menu>
 				)
 			}
