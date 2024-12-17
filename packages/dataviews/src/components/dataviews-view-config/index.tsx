@@ -266,7 +266,7 @@ function BaseFieldItem( {
 	onToggleVisibility,
 	onMoveUp,
 	onMoveDown,
-	additionalActions,
+	children,
 }: {
 	identifier: string;
 	label: string;
@@ -280,7 +280,7 @@ function BaseFieldItem( {
 	onToggleVisibility?: () => void;
 	onMoveUp?: () => void;
 	onMoveDown?: () => void;
-	additionalActions?: ReactNode;
+	children?: ReactNode;
 } ) {
 	const focusVisibilityField = () => {
 		// Focus the visibility button to avoid focus loss.
@@ -393,7 +393,7 @@ function BaseFieldItem( {
 							}
 						/>
 					) }
-					{ additionalActions }
+					{ children }
 				</HStack>
 			</HStack>
 		</Item>
@@ -539,43 +539,42 @@ function PreviewFieldItem( {
 			canMove={ false }
 			canHide
 			isInteracting={ isChangingPreview }
-			additionalActions={
-				isVisible && (
-					<Menu onOpenChange={ setIsChangingPreview }>
-						<Menu.TriggerButton
-							render={
-								<Button
-									size="compact"
-									icon={ moreVertical }
-									label={ __( 'Preview' ) }
-								/>
-							}
-						/>
-						<Menu.Popover>
-							{ previewFields.map( ( field ) => {
-								return (
-									<Menu.RadioItem
-										key={ field.id }
-										value={ field.id }
-										checked={ field.id === view.mediaField }
-										onChange={ () => {
-											onChangeView( {
-												...view,
-												mediaField: field.id,
-											} );
-										} }
-									>
-										<Menu.ItemLabel>
-											{ field.label }
-										</Menu.ItemLabel>
-									</Menu.RadioItem>
-								);
-							} ) }
-						</Menu.Popover>
-					</Menu>
-				)
-			}
-		/>
+		>
+			{ isVisible && (
+				<Menu onOpenChange={ setIsChangingPreview }>
+					<Menu.TriggerButton
+						render={
+							<Button
+								size="compact"
+								icon={ moreVertical }
+								label={ __( 'Preview' ) }
+							/>
+						}
+					/>
+					<Menu.Popover>
+						{ previewFields.map( ( field ) => {
+							return (
+								<Menu.RadioItem
+									key={ field.id }
+									value={ field.id }
+									checked={ field.id === view.mediaField }
+									onChange={ () => {
+										onChangeView( {
+											...view,
+											mediaField: field.id,
+										} );
+									} }
+								>
+									<Menu.ItemLabel>
+										{ field.label }
+									</Menu.ItemLabel>
+								</Menu.RadioItem>
+							);
+						} ) }
+					</Menu.Popover>
+				</Menu>
+			) }
+		</BaseFieldItem>
 	);
 }
 
