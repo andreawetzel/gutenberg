@@ -254,9 +254,9 @@ function ItemsPerPageControl() {
 }
 
 function BaseFieldItem( {
-	fieldId,
+	identifier,
 	label,
-	subLabel,
+	description,
 	isVisible,
 	isFirst,
 	isLast,
@@ -268,9 +268,9 @@ function BaseFieldItem( {
 	onMoveDown,
 	additionalActions,
 }: {
-	fieldId: string;
+	identifier: string;
 	label: string;
-	subLabel?: string;
+	description?: string;
 	isVisible: boolean;
 	isFirst?: boolean;
 	isLast?: boolean;
@@ -288,7 +288,7 @@ function BaseFieldItem( {
 		// eslint-disable-next-line @wordpress/react-no-unsafe-timeout
 		setTimeout( () => {
 			const element = document.querySelector(
-				`.dataviews-field-control__field-${ fieldId } .dataviews-field-control__field-visibility-button`
+				`.dataviews-field-control__field-${ identifier } .dataviews-field-control__field-visibility-button`
 			);
 			if ( element instanceof HTMLElement ) {
 				element.focus();
@@ -314,9 +314,9 @@ function BaseFieldItem( {
 					<span className="dataviews-field-control__label">
 						{ label }
 					</span>
-					{ subLabel && (
+					{ description && (
 						<span className="dataviews-field-control__sub-label">
-							{ subLabel }
+							{ description }
 						</span>
 					) }
 				</span>
@@ -415,7 +415,7 @@ function FieldItem( {
 } ) {
 	return (
 		<BaseFieldItem
-			fieldId={ field.id }
+			identifier={ field.id }
 			label={ field.label }
 			isVisible={ isVisible }
 			isFirst={ isFirst }
@@ -500,17 +500,17 @@ function RegularFieldItem( {
 	);
 }
 
-function MediaFieldItem( {
+function PreviewFieldItem( {
 	view,
 	onChangeView,
 	isVisible = true,
-	mediaFields,
+	previewFields,
 	activeField,
 }: {
 	view: View;
 	onChangeView: ( view: View ) => void;
 	isVisible?: boolean;
-	mediaFields: NormalizedField< any >[];
+	previewFields: NormalizedField< any >[];
 	activeField: NormalizedField< any > | undefined;
 } ) {
 	const [ isChangingPreview, setIsChangingPreview ] =
@@ -520,9 +520,9 @@ function MediaFieldItem( {
 	}
 	return (
 		<BaseFieldItem
-			fieldId="preview"
+			identifier="preview"
 			label={ __( 'Preview' ) }
-			subLabel={ activeField.label }
+			description={ activeField.label }
 			isVisible={ isVisible }
 			onToggleVisibility={ () => {
 				onChangeView( {
@@ -546,24 +546,24 @@ function MediaFieldItem( {
 							}
 						/>
 						<Menu.Popover>
-							{ mediaFields.map( ( field ) => {
-							return (
-								<Menu.RadioItem
-									key={ field.id }
-									value={ field.id }
-									checked={ field.id === view.mediaField }
-									onChange={ () => {
-										onChangeView( {
-											...view,
-											mediaField: field.id,
-										} );
-									} }
-								>
-									<Menu.ItemLabel>
-										{ field.label }
-									</Menu.ItemLabel>
-								</Menu.RadioItem>
-							);
+							{ previewFields.map( ( field ) => {
+								return (
+									<Menu.RadioItem
+										key={ field.id }
+										value={ field.id }
+										checked={ field.id === view.mediaField }
+										onChange={ () => {
+											onChangeView( {
+												...view,
+												mediaField: field.id,
+											} );
+										} }
+									>
+										<Menu.ItemLabel>
+											{ field.label }
+										</Menu.ItemLabel>
+									</Menu.RadioItem>
+								);
 							} ) }
 						</Menu.Popover>
 					</Menu>
@@ -590,7 +590,7 @@ function FieldControl() {
 		( f ) =>
 			! visibleFieldIds.includes( f.id ) &&
 			! togglableFields.includes( f.id ) &&
-			! f.isMediaField
+			! f.isPreviewField
 	);
 	const visibleFields = visibleFieldIds
 		.map( ( fieldId ) => fields.find( ( f ) => f.id === fieldId ) )
@@ -600,24 +600,24 @@ function FieldControl() {
 		return null;
 	}
 	const titleField = fields.find( ( f ) => f.id === view.titleField );
-	const mediaField = fields.find( ( f ) => f.id === view.mediaField );
+	const previewField = fields.find( ( f ) => f.id === view.mediaField );
 	const descriptionField = fields.find(
 		( f ) => f.id === view.descriptionField
 	);
 
-	const mediaFields = fields.filter( ( f ) => f.isMediaField );
+	const previewFields = fields.filter( ( f ) => f.isPreviewField );
 
-	let mediaFieldUI;
-	if ( mediaFields.length > 1 ) {
-		const isMediaFieldVisible =
-			isDefined( mediaField ) && ( view.showMedia ?? true );
-		mediaFieldUI = (
-			<MediaFieldItem
+	let previewFieldUI;
+	if ( previewFields.length > 1 ) {
+		const isPreviewFieldVisible =
+			isDefined( previewField ) && ( view.showMedia ?? true );
+		previewFieldUI = (
+			<PreviewFieldItem
 				view={ view }
 				onChangeView={ onChangeView }
-				isVisible={ isMediaFieldVisible }
-				mediaFields={ mediaFields }
-				activeField={ mediaField }
+				isVisible={ isPreviewFieldVisible }
+				previewFields={ previewFields }
+				activeField={ previewField }
 			/>
 		);
 	}
@@ -627,9 +627,9 @@ function FieldControl() {
 			isVisibleFlag: 'showTitle',
 		},
 		{
-			field: mediaField,
+			field: previewField,
 			isVisibleFlag: 'showMedia',
-			ui: mediaFieldUI,
+			ui: previewFieldUI,
 		},
 		{
 			field: descriptionField,
